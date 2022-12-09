@@ -1,0 +1,7 @@
+audio
+.ipynb_checkpoints
+venv
+*.pyc
+
+# Partial models
+model__epoch*
