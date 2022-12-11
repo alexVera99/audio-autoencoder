@@ -90,3 +90,26 @@ def plot_spectrogram(X):
     plt.ylabel('Frequency bin')
     plt.title('10 x log10(abs(X))')
     plt.show()
+
+def plot_loss_functions(loss_functions: list, 
+                        loss_function_names: list,
+                        title: str = "Loss functions"):
+    """Plot the given loss functions
+
+    Args:
+        loss_functions (list): list of loss functions
+        loss_function_names (list): list of the names of the \
+            the loss functions. For example, training, testing, \
+            validation, etc...
+    """
+    plt.title(title)
+    plt.xlabel("Epoch")
+    plt.ylabel("Loss")
+    
+    for _l_f, _l_f_n in zip(loss_functions, loss_function_names):
+        plt.plot(range(1,len(_l_f)+1),
+                 _l_f,
+                 label=_l_f_n)
+
+    plt.legend()
+    plt.show()

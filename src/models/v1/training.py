@@ -1,7 +1,7 @@
 import torch.nn as nn
 import torch
 import numpy as np
-from src.utils.utils import batch_dft_to_audio, plot_loss_function
+from src.utils.utils import plot_loss_functions
 from src.models.v1.testing import testing
 
 
@@ -62,9 +62,6 @@ def train_autoencoder(autoencoder, train_loader, testing_data_loader,
               f"Step [{i+1}/{total_step}]. "
               f"Loss: {round(loss_avg, 5)}.")
         
-        # Plot Loss function
-        plot_loss_function(losses_list, "Current Training Loss")
-        
         # Save model        
         model_checkpoint_filename = models_path / f"{model_name}__epoch_{epoch}.ckpt"
         torch.save(autoencoder.state_dict(),
@@ -84,6 +81,11 @@ def train_autoencoder(autoencoder, train_loader, testing_data_loader,
         np.save(model_loss_testing_filename,
                 np.array(test_losses_list))
         autoencoder.train()
+        
+        # Plot Loss function
+        plot_loss_functions([losses_list, test_losses_list],
+                            ["Train", "Testing"],
+                            "Current Training and Testing Loss")
         
     # Save final model
     model_filename = models_path / f"{model_name}__final.ckpt"
