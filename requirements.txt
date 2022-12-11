@@ -1,6 +1,6 @@
 numpy==1.23.5
 torch==1.13.0
 torchsummary==1.5.1
-essentia==2.1b6.dev858
+essentia
 pandas==1.5.2
 matplotlib==3.6.2
