@@ -1,4 +1,4 @@
-import torch
+import torch.nn as nn
 from src.layers.base_layers import *
 
 class Encoder(nn.Module):
