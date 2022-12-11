@@ -60,7 +60,10 @@ def train_autoencoder(autoencoder, train_loader, optimizer,
               f"Loss: {round(loss_avg, 5)}.")
         
         # Listen batch
-        _ = batch_dft_to_audio(synth_dfts, listen=True)
+        print("Original DFTs and Audios")
+        _ = batch_dft_to_audio(dfts_device, listen=True, show_spectrogram=True, listen_max=2)
+        print("Synthesized DFTs and Audios")
+        _ = batch_dft_to_audio(synth_dfts, listen=True, show_spectrogram=True, listen_max=2)
         
         # Plot Loss function
         plot_loss_function(losses_list, "Current Training Loss")

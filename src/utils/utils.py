@@ -25,7 +25,9 @@ def batch_dft_to_audio(batch: torch.Tensor,
                        fft_size=1024, 
                        hop_size=1024,
                        listen=False,
-                       sr = 44100) -> list:
+                       listen_max = 5,
+                       sr = 44100,
+                       show_spectrogram=False) -> list:
     """Convert a batch of DFT in polar forma to audio signal
 
     Args:
@@ -36,10 +38,14 @@ def batch_dft_to_audio(batch: torch.Tensor,
             of frequency bins and; FR is the number of frames.
         fft_size (int, optional): Size of the DFT. Defaults to 1024.
         hop_size (int, optional): Hop size of the DFT. Defaults to 1024.
-        listen (boolean, optional): It displays a player to reproduce all \
-            the audios in the batch.
+        listen (boolean, optional): It displays a player to reproduce the \
+            listen_max audios in the batch.
+        listen_max (int): Maximum number of audios to listen. It will list the \
+            first listen_max audios.
         sr (int, optional): Sampling rate to reproduce the audio when \
             listen==True. 
+        show_spectrogram (boolean, optional): It plots the spectrogram of \
+            listen_max audios in the batch.
     Return:
         A list of all the audios.
     """
@@ -47,7 +53,7 @@ def batch_dft_to_audio(batch: torch.Tensor,
     
     audios = list()
     
-    for _b in batch_np:
+    for i, _b in enumerate(batch_np):
         magnitude = _b[:, :, 0].T
         phase = _b[:, :, 1].T
         
@@ -60,8 +66,11 @@ def batch_dft_to_audio(batch: torch.Tensor,
         
         audios.append(audio)
         
-        if listen:
-            display(Audio(audio, rate=44100))
+        if i < listen_max:
+            if listen:
+                display(Audio(audio, rate=sr))
+            if show_spectrogram:
+                plot_spectrogram(dft)
     
     return audios
 
@@ -71,4 +80,13 @@ def plot_loss_function(losses_list, title = "Loss function"):
     plt.plot(range(1,len(losses_list)+1), losses_list)
     plt.xlabel("Epoch")
     plt.ylabel("Loss")
+    plt.show()
+
+def plot_spectrogram(X):
+    plt.figure()
+    plt.imshow(10*np.log10(np.abs(X) + 1e-6).T, origin='lower', aspect='auto')
+    plt.colorbar()
+    plt.xlabel('Frame')
+    plt.ylabel('Frequency bin')
+    plt.title('10 x log10(abs(X))')
     plt.show()
