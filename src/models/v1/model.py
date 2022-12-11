@@ -85,7 +85,7 @@ class Decoder(nn.Module):
     out = self.layer3(out)
     out = self.layer2(out)
     out = self.layer1(out)
-    return torch.sigmoid(out)
+    return out
 
 class AudioAutoEncoder(nn.Module):
     def __init__(self, input_channels, base_channels, num_features):
