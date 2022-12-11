@@ -2,37 +2,40 @@ import torch.nn as nn
 import torch
 import numpy as np
 from src.utils.utils import batch_dft_to_audio, plot_loss_function
+from src.models.v1.testing import testing
 
 
 
-def train_autoencoder(autoencoder, train_loader, optimizer,
-              model_name, models_path, num_epochs=10,
-              device='cpu', lbmda = 0.5, losses_list = None,
-              epoch_start = 0):
+def train_autoencoder(autoencoder, train_loader, testing_data_loader,
+                      optimizer, model_name, models_path, num_epochs=10,
+                      device='cpu', lbmda = 0.5, losses_list = None,
+                      test_losses_list = None, epoch_start = 0):
     autoencoder = autoencoder.to(device)
-    autoencoder.train() # Set the generator in train mode
+    autoencoder.train() # Set the autoencoder to train
 
     total_step = len(train_loader)
     
     if type(losses_list) == type(None):
         losses_list = []
 
+    if type(test_losses_list) == type(None):
+        test_losses_list = []
+
     l1_loss = nn.L1Loss()
     mse_loss = nn.MSELoss()
 
     # Iterate over epochs
     for epoch in range(epoch_start, num_epochs):
-        print(f"Starting epoch {epoch}...")
+        print(f"Running epoch {epoch}...")
         # Iterate the dataset
         loss_sum = 0
         n_batches = 0
 
         for i, dfts in enumerate(train_loader):
-            # Get batch of samples and labels
+            # Get batch of samples
             dfts_device = dfts.to(device)
             
             # Forward pass
-            # Generate random images with the generator
             synth_dfts = autoencoder.forward(dfts_device)
             
             # Generator loss
@@ -59,12 +62,6 @@ def train_autoencoder(autoencoder, train_loader, optimizer,
               f"Step [{i+1}/{total_step}]. "
               f"Loss: {round(loss_avg, 5)}.")
         
-        # Listen batch
-        print("Original DFTs and Audios")
-        _ = batch_dft_to_audio(dfts_device, listen=True, show_spectrogram=True, listen_max=2)
-        print("Synthesized DFTs and Audios")
-        _ = batch_dft_to_audio(synth_dfts, listen=True, show_spectrogram=True, listen_max=2)
-        
         # Plot Loss function
         plot_loss_function(losses_list, "Current Training Loss")
         
@@ -77,6 +74,17 @@ def train_autoencoder(autoencoder, train_loader, optimizer,
         losses_list.append(loss_avg)
         np.save(model_loss_filename, np.array(losses_list))
         
+        # Get testing model loss
+        testing_loss = testing(autoencoder,
+                               testing_data_loader,
+                               device,
+                               lbmda)
+        model_loss_testing_filename = models_path / f"{model_name}__epoch_{epoch}_loss_testing.npy"
+        test_losses_list.append(testing_loss)
+        np.save(model_loss_testing_filename,
+                np.array(test_losses_list))
+        autoencoder.train()
+        
     # Save final model
     model_filename = models_path / f"{model_name}__final.ckpt"
     torch.save(autoencoder.state_dict(),
@@ -86,4 +94,4 @@ def train_autoencoder(autoencoder, train_loader, optimizer,
     np.save(model_loss_filename, np.array(losses_list))
     
           
-    return model_filename, model_loss_filename, losses_list
+    return model_filename, model_loss_filename, losses_list, test_losses_list
