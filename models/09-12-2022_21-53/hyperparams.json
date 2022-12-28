@@ -3,5 +3,5 @@
     "weight_decay": 1e-05,
     "optimizer": "<class 'torch.optim.adam.Adam'>",
     "lambda": 0.5,
-    "target_num_epochs": 30
+    "target_num_epochs": 60
 }
