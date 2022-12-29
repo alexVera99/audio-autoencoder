@@ -26,7 +26,7 @@ class AudioDB(torch.utils.data.Dataset):
         self.hop_size = hop_size
         self.window_type = window_type
 
-    # What to do to load a single item in the dataset ( read image and label)    
+    # What to do to load a single item in the dataset
     def __getitem__(self, index):
         sample_data = self.audio_df.iloc[index]
 
